@@ -1,0 +1,26 @@
+services:
+  mongodb:
+    image: mongo:7
+    container_name: sbp_mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+  metabase:
+    image: metabase/metabase:latest
+    container_name: sbp_metabase
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongodb
+    volumes:
+      - metabase_data:/metabase-data
+    environment:
+      MB_DB_FILE: /metabase-data/metabase.db
+
+volumes:
+  mongodb_data:
+  metabase_data:
