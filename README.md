@@ -12,13 +12,6 @@ Tema projekta je analiza digitalnog ponašanja studenata na osnovu skupa podatak
 - Metabase
 - MongoDB Compass
 
-## Struktura projekta
-
-- `data/` - skup podataka
-- `scripts/` - skripte za obradu podataka i upite
-- `docker-compose.yml` - konfiguracija za pokretanje servisa
-- `README.md` - opis projekta
-
 ## Pokretanje
 
 MongoDB i Metabase se pokreću pomoću Docker-a:
