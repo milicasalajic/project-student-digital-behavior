@@ -27,11 +27,11 @@ charts:    ## dijagrami uporedne analize -> charts/*.png (iz benchmarks/results.
 results:   ## materijalizacija rezultata za Metabase -> results_* kolekcije
 	docker exec -i sbp_mongodb mongosh sbp-v2 < metabase/write_results.js
 
-images:    ## slike rezultata upita -> v*/queries/*/qN.png (iz results_* kolekcija)
-	$(PY) -m charts.make_result_images
+images:    ## per-upit dokumentacija -> v*/{milica,ivan}/Upit*/ (README + explain/index/output)
+	$(PY) -m charts.make_query_docs
 
 all: up load build indexes charts results images
-	@echo "Gotovo. Upiti: pokreni iz v1/queries i v2/queries u mongosh/Compass."
+	@echo "Gotovo. Upiti: pokreni iz v{1,2}/{milica,ivan}/Upit* u mongosh/Compass."
 	@echo "Metabase: http://localhost:3000 (vidi metabase/SETUP.md)"
 
 pipeline: load build indexes   ## ceo unos + optimizacija

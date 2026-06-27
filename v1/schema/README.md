@@ -48,4 +48,4 @@ spaja (`$lookup`) više kolekcija — to je namerno **usko grlo** koje merimo.
 > `economic` se ne koristi ni u jednom od 10 upita (postoji radi potpunosti
 > normalizacije); u v2 se izostavlja iz vruće kolekcije → **Subset pattern**.
 
-Unos: [`../scripts/`](../scripts/README.md) · Upiti: [`../queries/`](../queries)
+Unos: [`../scripts/`](../scripts/README.md) · Upiti: [`../milica`](../milica) · [`../ivan`](../ivan)

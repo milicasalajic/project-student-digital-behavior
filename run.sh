@@ -27,8 +27,8 @@ $PY -m charts.make_charts
 
 echo "==> 7/7 Materijalizacija rezultata za Metabase + slike rezultata"
 docker exec -i sbp_mongodb mongosh sbp-v2 < metabase/write_results.js
-$PY -m charts.make_result_images
+$PY -m charts.make_query_docs
 
 echo "Gotovo."
-echo "Upiti: pokreni iz v1/queries i v2/queries u mongosh/Compass."
+echo "Upiti: pokreni iz v{1,2}/{milica,ivan}/Upit* u mongosh/Compass."
 echo "Metabase: http://localhost:3000 (vidi metabase/SETUP.md)"

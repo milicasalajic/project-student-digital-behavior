@@ -55,4 +55,4 @@ Vidi [`../scripts/indexes.py`](../scripts/indexes.py) / [`indexes.js`](../script
 | **Bucket** *(konceptualno)* | nema vremenske serije po studentu; baketiranje je analitičko (Computed) + `results_*` |
 | Polymorphic / Tree / Document Versioning / Outlier | **N/A** — homogeni dokumenti, bez hijerarhije, statički snimak, ujednačena veličina (obrazloženo u izveštaju) |
 
-Izgradnja: [`../scripts/`](../scripts/README.md) · Upiti: [`../queries/`](../queries)
+Izgradnja: [`../scripts/`](../scripts/README.md) · Upiti: [`../milica`](../milica) · [`../ivan`](../ivan)

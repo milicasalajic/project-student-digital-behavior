@@ -85,10 +85,11 @@ Vidi `v2/scripts/indexes.py`.
 
 ## 6. Upiti (10)
 
-5 za ulogu **studentski psiholog** (PSY-1..5) + 5 za **akademski savetnik** (AA-1..5),
-pisani kao **klasičan mongosh** (pokreću se u `mongosh`/Compass). Pune implementacije
-(v1 sa `$lookup`, v2 bez) i izmerena vremena: [`v1/queries/`](../v1/queries) i
-[`v2/queries/`](../v2/queries).
+5 za ulogu **studentski psiholog** (PSY-1..5, folder `milica/`) + 5 za **akademski
+savetnik** (AA-1..5, folder `ivan/`), pisani kao **klasičan mongosh** (pokreću se u
+`mongosh`/Compass). Svaki upit ima zaseban folder sa kodom, screenshotom rezultata i
+screenshotom `explain` plana (u kome se vidi i korišćeni indeks) — po uzoru na strukturu
+primera (Andrija/Vuk): `v1/{milica,ivan}/Upit{1..5}/` i `v2/{milica,ivan}/Upit{1..5}/`.
 
 Napomena o iskrenosti analize: PSY-2 i PSY-4 su jednokolekcijski i u v1 (nemaju join),
 pa im je dobitak u v2 mali (samo Computed/indeks); najveće ubrzanje očekujemo kod
