@@ -25,8 +25,9 @@ $PY -m v2.scripts.indexes
 echo "==> 6/7 Dijagrami uporedne analize (iz benchmarks/results.csv)"
 $PY -m charts.make_charts
 
-echo "==> 7/7 Materijalizacija rezultata za Metabase"
+echo "==> 7/7 Materijalizacija rezultata za Metabase + slike rezultata"
 docker exec -i sbp_mongodb mongosh sbp-v2 < metabase/write_results.js
+$PY -m charts.make_result_images
 
 echo "Gotovo."
 echo "Upiti: pokreni iz v1/queries i v2/queries u mongosh/Compass."

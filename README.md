@@ -68,6 +68,7 @@ python -m v2.scripts.indexes         # indeksi na sbp-v2.students
 # Upiti se pokreću ručno u mongosh/Compass (v1/queries, v2/queries); vremena su u benchmarks/results.csv
 python -m charts.make_charts         # -> charts/*.png (iz results.csv)
 docker exec -i sbp_mongodb mongosh sbp-v2 < metabase/write_results.js   # -> results_* (za Metabase)
+python -m charts.make_result_images  # -> v*/queries/*/qN.png (slike rezultata upita)
 ```
 Skraćeno: `make all` ili `./run.sh`.
 

@@ -1,7 +1,7 @@
 COMPOSE ?= docker compose
 PY      ?= python
 
-.PHONY: help up down load build indexes pipeline charts results all clean
+.PHONY: help up down load build indexes pipeline charts results images all clean
 
 help:
 	@echo "Ciljevi: up | load | build | indexes | bench | charts | results | all | down | clean"
@@ -27,11 +27,14 @@ charts:    ## dijagrami uporedne analize -> charts/*.png (iz benchmarks/results.
 results:   ## materijalizacija rezultata za Metabase -> results_* kolekcije
 	docker exec -i sbp_mongodb mongosh sbp-v2 < metabase/write_results.js
 
-pipeline: load build indexes   ## ceo unos + optimizacija
+images:    ## slike rezultata upita -> v*/queries/*/qN.png (iz results_* kolekcija)
+	$(PY) -m charts.make_result_images
 
-all: up load build indexes charts results
+all: up load build indexes charts results images
 	@echo "Gotovo. Upiti: pokreni iz v1/queries i v2/queries u mongosh/Compass."
 	@echo "Metabase: http://localhost:3000 (vidi metabase/SETUP.md)"
+
+pipeline: load build indexes   ## ceo unos + optimizacija
 
 clean:     ## obriši kontejnere I volumene (briše podatke u Mongo/Metabase)
 	$(COMPOSE) down -v
