@@ -3,7 +3,7 @@
 > Pokrenuti u `mongosh` ili MongoDB Compass nad bazom `sbp-v1`.
 > Vreme je izmereno preko `explain("executionStats")` (server vreme, medijana od 3 izvršavanja).
 
-### 1. Grupisati studente po dnevnim satima korišćenja društvenih mreža (<2h, 2-4h, 4-6h, >6h); prikazati broj studenata, procenat, prosečan skor produktivnosti, prosečan broj sati učenja i prosečan akademski rizik. — 5413 ms
+### 1. Grupisati studente po dnevnim satima korišćenja društvenih mreža (<2h, 2-4h, 4-6h, >6h); prikazati broj studenata, procenat, prosečan skor produktivnosti, prosečan broj sati učenja i prosečan akademski rizik. — 5015 ms
 
 ```javascript
 db.digital_behavior.aggregate([
@@ -20,9 +20,11 @@ db.digital_behavior.aggregate([
       prosek_produktivnost: { $avg: "$a.productivity_score" },
       prosek_sati_ucenja: { $avg: "$a.study_hours_per_week" },
       prosek_akademski_rizik: { $avg: "$a.academic_risk_score" } } },
-  { $setWindowFields: { sortBy: { _id: 1 }, output: {
-      ukupno: { $sum: "$broj_studenata", window: { documents: ["unbounded", "unbounded"] } } } } },
-  { $addFields: { procenat: { $multiply: [{ $divide: ["$broj_studenata", "$ukupno"] }, 100] } } },
+  // procenat od ukupnog: skupi grupe u niz + saberi ukupno, pa razmotaj nazad
+  { $group: { _id: null, grupe: { $push: "$$ROOT" }, ukupno: { $sum: "$broj_studenata" } } },
+  { $unwind: "$grupe" },
+  { $addFields: { "grupe.procenat": { $multiply: [{ $divide: ["$grupe.broj_studenata", "$ukupno"] }, 100] } } },
+  { $replaceRoot: { newRoot: "$grupe" } },
   { $sort: { _id: 1 } }
 ], { allowDiskUse: true })
 ```
@@ -56,14 +58,19 @@ db.wellbeing.aggregate([
 Rezultat upita:<br>
 ![Rezultat upita](./q2.png)
 
-### 3. Izdvojiti studente sa akademskim rizikom iznad proseka; prikazati ukupan broj studenata, prosečan broj sati učenja, prosečan skor produktivnosti i prosečan broj sati na društvenim mrežama. — 1176 ms
+### 3. Izdvojiti studente sa akademskim rizikom iznad proseka; prikazati ukupan broj studenata, prosečan broj sati učenja, prosečan skor produktivnosti i prosečan broj sati na društvenim mrežama. — 522 ms (prosek + filter)
+
+Dva koraka: prvo se izračuna prosečan akademski rizik, pa se ta vrednost ubaci kao prag.
 
 ```javascript
+// 1) prosečan akademski rizik
+const prosek = db.academic.aggregate([
+  { $group: { _id: null, m: { $avg: "$academic_risk_score" } } }
+]).toArray()[0].m;
+
+// 2) studenti iznad proseka
 db.academic.aggregate([
-  { $project: { academic_risk_score: 1, study_hours_per_week: 1, productivity_score: 1 } },
-  { $setWindowFields: { sortBy: { _id: 1 }, output: {
-      m: { $avg: "$academic_risk_score", window: { documents: ["unbounded", "unbounded"] } } } } },
-  { $match: { $expr: { $gt: ["$academic_risk_score", "$m"] } } },
+  { $match: { academic_risk_score: { $gt: prosek } } },
   { $lookup: { from: "digital_behavior", localField: "_id", foreignField: "_id", as: "d" } },
   { $unwind: "$d" },
   { $group: {

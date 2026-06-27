@@ -41,8 +41,10 @@ db.students.aggregate([
   { $group: { _id: "$derived.social_media_band", broj_studenata: { $sum: 1 },
       prosek_produktivnost: { $avg: "$productivity_score" }, prosek_sati_ucenja: { $avg: "$study_hours_per_week" },
       prosek_akademski_rizik: { $avg: "$academic_risk_score" } } },
-  { $setWindowFields: { sortBy: { _id: 1 }, output: { ukupno: { $sum: "$broj_studenata", window: { documents: ["unbounded", "unbounded"] } } } } },
-  { $addFields: { procenat: { $multiply: [{ $divide: ["$broj_studenata", "$ukupno"] }, 100] } } },
+  { $group: { _id: null, grupe: { $push: "$$ROOT" }, ukupno: { $sum: "$broj_studenata" } } },
+  { $unwind: "$grupe" },
+  { $addFields: { "grupe.procenat": { $multiply: [{ $divide: ["$grupe.broj_studenata", "$ukupno"] }, 100] } } },
+  { $replaceRoot: { newRoot: "$grupe" } },
   { $sort: { _id: 1 } }, { $out: "results_sav_q1" }], O);
 
 db.students.aggregate([
@@ -53,10 +55,9 @@ db.students.aggregate([
       prosek_stres_visokorizicni: { $cond: [{ $gt: ["$visokorizicni", 0] }, { $divide: ["$suma_stres_hr", "$visokorizicni"] }, null] } } },
   { $project: { suma_stres_hr: 0 } }, { $sort: { procenat_visokorizicnih: -1 } }, { $out: "results_sav_q2" }], O);
 
+const prosek_sav_q3 = db.students.aggregate([{ $group: { _id: null, m: { $avg: "$academic_risk_score" } } }]).toArray()[0].m;
 db.students.aggregate([
-  { $project: { academic_risk_score: 1, study_hours_per_week: 1, productivity_score: 1, social_media_hours: 1 } },
-  { $setWindowFields: { sortBy: { _id: 1 }, output: { m: { $avg: "$academic_risk_score", window: { documents: ["unbounded", "unbounded"] } } } } },
-  { $match: { $expr: { $gt: ["$academic_risk_score", "$m"] } } },
+  { $match: { academic_risk_score: { $gt: prosek_sav_q3 } } },
   { $group: { _id: null, broj_studenata: { $sum: 1 }, prosek_sati_ucenja: { $avg: "$study_hours_per_week" },
       prosek_produktivnost: { $avg: "$productivity_score" }, prosek_sati_mreze: { $avg: "$social_media_hours" } } },
   { $out: "results_sav_q3" }], O);

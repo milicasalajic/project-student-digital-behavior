@@ -3,7 +3,7 @@
 > Pokrenuti u `mongosh` ili MongoDB Compass nad bazom `sbp-v2` (jedna kolekcija `students`).
 > Vreme je izmereno preko `explain("executionStats")` (server vreme, medijana od 3 izvršavanja).
 
-### 1. Po dnevnim satima na mrežama (<2h, 2-4h, 4-6h, >6h): broj, procenat, prosečan skor produktivnosti, prosečan broj sati učenja, prosečan akademski rizik. — 500 ms
+### 1. Po dnevnim satima na mrežama (<2h, 2-4h, 4-6h, >6h): broj, procenat, prosečan skor produktivnosti, prosečan broj sati učenja, prosečan akademski rizik. — 565 ms
 
 ```javascript
 db.students.aggregate([
@@ -13,9 +13,11 @@ db.students.aggregate([
       prosek_produktivnost: { $avg: "$productivity_score" },
       prosek_sati_ucenja: { $avg: "$study_hours_per_week" },
       prosek_akademski_rizik: { $avg: "$academic_risk_score" } } },
-  { $setWindowFields: { sortBy: { _id: 1 }, output: {
-      ukupno: { $sum: "$broj_studenata", window: { documents: ["unbounded", "unbounded"] } } } } },
-  { $addFields: { procenat: { $multiply: [{ $divide: ["$broj_studenata", "$ukupno"] }, 100] } } },
+  // procenat od ukupnog: skupi grupe u niz + saberi ukupno, pa razmotaj nazad
+  { $group: { _id: null, grupe: { $push: "$$ROOT" }, ukupno: { $sum: "$broj_studenata" } } },
+  { $unwind: "$grupe" },
+  { $addFields: { "grupe.procenat": { $multiply: [{ $divide: ["$grupe.broj_studenata", "$ukupno"] }, 100] } } },
+  { $replaceRoot: { newRoot: "$grupe" } },
   { $sort: { _id: 1 } }
 ], { allowDiskUse: true })
 ```
@@ -46,15 +48,19 @@ db.students.aggregate([
 Rezultat upita:<br>
 ![Rezultat upita](./q2.png)
 
-### 3. Studenti sa akademskim rizikom iznad proseka: ukupan broj, prosečan broj sati učenja, skor produktivnosti i broj sati na mrežama. — 1227 ms
+### 3. Studenti sa akademskim rizikom iznad proseka: ukupan broj, prosečan broj sati učenja, skor produktivnosti i broj sati na mrežama. — 376 ms (prosek + filter)
+
+Dva koraka: prvo prosečan akademski rizik, pa filter iznad tog praga (u v2 `$match` koristi indeks `academic_risk_score`).
 
 ```javascript
+// 1) prosečan akademski rizik
+const prosek = db.students.aggregate([
+  { $group: { _id: null, m: { $avg: "$academic_risk_score" } } }
+]).toArray()[0].m;
+
+// 2) studenti iznad proseka
 db.students.aggregate([
-  { $project: { academic_risk_score: 1, study_hours_per_week: 1,
-                productivity_score: 1, social_media_hours: 1 } },
-  { $setWindowFields: { sortBy: { _id: 1 }, output: {
-      m: { $avg: "$academic_risk_score", window: { documents: ["unbounded", "unbounded"] } } } } },
-  { $match: { $expr: { $gt: ["$academic_risk_score", "$m"] } } },
+  { $match: { academic_risk_score: { $gt: prosek } } },
   { $group: {
       _id: null,
       broj_studenata: { $sum: 1 },

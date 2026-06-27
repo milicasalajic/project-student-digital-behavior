@@ -120,10 +120,10 @@ Izmereno (server vreme iz `executionStats`, medijana od 3; `docs` = pregledani d
 | AA-5 | countries+students+academic+wellbeing (3) | 15394 | 669 | **23,0×** | 2.000.003 | 500.000 |
 | PSY-1 | students+wellbeing+academic (2) | 10256 | 502 | **20,4×** | 1.500.002 | 500.000 |
 | AA-4 | digital_behavior+academic (1) | 5534 | 153 | **36,2×** | 1.000.001 | 90.432 |
-| AA-1 | digital_behavior+academic (1) | 5413 | 500 | **10,8×** | 1.000.001 | 500.000 |
 | AA-2 | wellbeing+students (1) | 5365 | 529 | **10,1×** | 1.000.001 | 500.000 |
+| AA-1 | digital_behavior+academic (1) | 5015 | 565 | **8,9×** | 1.000.001 | 500.000 |
 | PSY-5 | wellbeing+digital_behavior (1) | 1013 | 81 | **12,5×** | 573.650 | 10.690 |
-| AA-3 | academic+digital_behavior (1) | 1176 | 1227 | 0,96× | 516.392 | 500.000 |
+| AA-3 | academic+digital_behavior (1), 2 koraka | 522 | 376 | 1,4× | 1.016.392 | 516.391 |
 | PSY-3 | digital_behavior+wellbeing+academic (2) | 388 | 17 | **22,8×** | 528.208 | 14.103 |
 | PSY-2 | digital_behavior (0) | 379 | 442 | 0,86× | 500.000 | 500.000 |
 | PSY-4 | wellbeing (0) | 278 | 410 | 0,68× | 500.000 | 500.000 |
@@ -138,9 +138,11 @@ COLLSCAN na IXSCAN (PSY-3: 528k→14k dokumenata, PSY-5: 574k→11k). Najveći e
 
 Tamo gde nema ni join-a ni selektivnog filtera, denormalizacija ne pomaže — štaviše,
 PSY-2 (0,86×) i PSY-4 (0,68×) su u v2 **neznatno sporiji** jer su dokumenti širi (više
-polja po dokumentu za skeniranje pri punom `$group`-u), a AA-3 je praktično isti (0,96×)
-jer `$setWindowFields` u oba slučaja prolazi ceo skup. Ovo svesno uključujemo u analizu:
-denormalizacija je ciljana optimizacija za join-teške upite, a ne univerzalni dobitak.
+polja po dokumentu za skeniranje pri punom `$group`-u). AA-3 je rešen u **dva koraka**
+(prosek pa filter): indeks u v2 ubrzava korak filtriranja (28 ms naspram 295 ms u v1),
+ali neizbežan pun prolaz radi računanja proseka dominira, pa je ukupno ubrzanje skromno
+(~1,4×). Ovo svesno uključujemo u analizu: denormalizacija i indeksi su ciljana
+optimizacija za join-teške i filtrirajuće upite, a ne univerzalni dobitak.
 
 ## 9. Vizualizacija u Metabase-u
 
