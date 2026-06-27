@@ -5,7 +5,12 @@
 
 ### 1. Grupisati studente po dnevnim satima korišćenja društvenih mreža (<2h, 2-4h, 4-6h, >6h); prikazati broj studenata, procenat, prosečan skor produktivnosti, prosečan broj sati učenja i prosečan akademski rizik. — 5015 ms
 
+Ukupan broj studenata se izračuna zasebno i ubaci kao konstanta (za procenat).
+
 ```javascript
+// ukupan broj studenata
+const ukupno = db.digital_behavior.countDocuments();
+
 db.digital_behavior.aggregate([
   { $lookup: { from: "academic", localField: "_id", foreignField: "_id", as: "a" } },
   { $unwind: "$a" },
@@ -20,11 +25,7 @@ db.digital_behavior.aggregate([
       prosek_produktivnost: { $avg: "$a.productivity_score" },
       prosek_sati_ucenja: { $avg: "$a.study_hours_per_week" },
       prosek_akademski_rizik: { $avg: "$a.academic_risk_score" } } },
-  // procenat od ukupnog: skupi grupe u niz + saberi ukupno, pa razmotaj nazad
-  { $group: { _id: null, grupe: { $push: "$$ROOT" }, ukupno: { $sum: "$broj_studenata" } } },
-  { $unwind: "$grupe" },
-  { $addFields: { "grupe.procenat": { $multiply: [{ $divide: ["$grupe.broj_studenata", "$ukupno"] }, 100] } } },
-  { $replaceRoot: { newRoot: "$grupe" } },
+  { $addFields: { procenat: { $multiply: [{ $divide: ["$broj_studenata", ukupno] }, 100] } } },
   { $sort: { _id: 1 } }
 ], { allowDiskUse: true })
 ```

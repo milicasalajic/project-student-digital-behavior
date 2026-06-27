@@ -37,14 +37,12 @@ db.students.aggregate([
   { $out: "results_psi_q5" }], O);
 
 // --- Savetnik ---
+const uk_sav_q1 = db.students.countDocuments();
 db.students.aggregate([
   { $group: { _id: "$derived.social_media_band", broj_studenata: { $sum: 1 },
       prosek_produktivnost: { $avg: "$productivity_score" }, prosek_sati_ucenja: { $avg: "$study_hours_per_week" },
       prosek_akademski_rizik: { $avg: "$academic_risk_score" } } },
-  { $group: { _id: null, grupe: { $push: "$$ROOT" }, ukupno: { $sum: "$broj_studenata" } } },
-  { $unwind: "$grupe" },
-  { $addFields: { "grupe.procenat": { $multiply: [{ $divide: ["$grupe.broj_studenata", "$ukupno"] }, 100] } } },
-  { $replaceRoot: { newRoot: "$grupe" } },
+  { $addFields: { procenat: { $multiply: [{ $divide: ["$broj_studenata", uk_sav_q1] }, 100] } } },
   { $sort: { _id: 1 } }, { $out: "results_sav_q1" }], O);
 
 db.students.aggregate([
