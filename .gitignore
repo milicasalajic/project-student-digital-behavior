@@ -6,10 +6,17 @@ __pycache__/
 *.pyc
 
 # Dataset files
-data/*.csv
+data/*
+!data/.gitkeep
 
 # Environment files
 .env
+
+# Generisani raw explain podaci (results.csv se KOMITUJE kao dokaz)
+benchmarks/results.json
+
+# Metabase lokalna baza
+metabase/metabase.db*
 
 # OS files
 .DS_Store

@@ -1,0 +1,73 @@
+#!/usr/bin/env python3
+"""Gradi OPTIMIZOVANU denormalizovanu šemu `sbp-v2` (jedna kolekcija `students`).
+
+Primenjeni paterni:
+  - Computed: poddokument `derived` (računat u Python-u, jednom po studentu)
+  - Extended Reference: `development_level` denormalizovan u svaki dokument
+    (nema više $lookup-a ka countries kolekciji)
+  - Subset: ekonomska polja i nekorišćene country-infrastrukturne kolone se
+    izostavljaju iz vruće kolekcije (manji radni skup)
+  - Schema Versioning: polje `schema_version: 2`
+
+Build se radi ponovo iz CSV-a (Computed polja se lakše i pouzdanije računaju u
+Python-u nego u aggregation pipeline-u). Alternativa u Mongo-u: transform_v1_to_v2.js
+
+Pokretanje:  python -m v2.scripts.build_v2   [--no-drop]
+"""
+import argparse
+import csv
+
+from pymongo import InsertOne, MongoClient
+from tqdm import tqdm
+
+from common.config import BATCH_SIZE, CSV_PATH, DB_V2, MONGO_URI, TOTAL_ROWS
+from common.derived import derive
+from common.schema import coerce
+
+# Subset pattern: kolone koje NE ulaze u vruću kolekciju (nisu u 10 upita).
+SUBSET_OMIT = {
+    "poverty_rate_percent", "internet_infrastructure_index", "average_internet_speed_mbps",
+    "ads_viewed_per_day", "ads_clicked_per_week", "impulse_purchase_score",
+    "digital_spending_per_month", "financial_risk_score",
+}
+
+
+def build_doc(row):
+    doc = {}
+    for col, raw in row.items():
+        if col == "student_id":
+            doc["_id"] = coerce(col, raw)
+        elif col in SUBSET_OMIT:
+            continue
+        else:
+            doc[col] = coerce(col, raw)  # uklj. development_level (Extended Reference)
+    doc["derived"] = derive(doc)  # Computed
+    doc["schema_version"] = 2  # Schema Versioning
+    return doc
+
+
+def main(drop=True):
+    client = MongoClient(MONGO_URI)
+    if drop:
+        client.drop_database(DB_V2)
+    coll = client[DB_V2]["students"]
+
+    batch = []
+    with open(CSV_PATH, newline="", encoding="utf-8") as f:
+        for row in tqdm(csv.DictReader(f), total=TOTAL_ROWS, unit="red", desc="v2 build"):
+            batch.append(InsertOne(build_doc(row)))
+            if len(batch) >= BATCH_SIZE:
+                coll.bulk_write(batch, ordered=False)
+                batch.clear()
+    if batch:
+        coll.bulk_write(batch, ordered=False)
+
+    print(f"\n--- sbp-v2 gotovo ---\n  students: {coll.estimated_document_count():,}")
+    print("  (indekse kreirati skriptom v2.scripts.indexes)")
+
+
+if __name__ == "__main__":
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--no-drop", action="store_true", help="ne briši bazu pre unosa")
+    args = ap.parse_args()
+    main(drop=not args.no_drop)
