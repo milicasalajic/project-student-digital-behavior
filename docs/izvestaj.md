@@ -85,9 +85,10 @@ Vidi `v2/scripts/indexes.py`.
 
 ## 6. Upiti (10)
 
-5 za ulogu **studentski psiholog** (PSY-1..5) + 5 za **akademski savetnik** (AA-1..5).
-Pune implementacije (v1 sa `$lookup`, v2 bez) i izmerena vremena:
-[`v1/queries/`](../v1/queries) i [`v2/queries/`](../v2/queries).
+5 za ulogu **studentski psiholog** (PSY-1..5) + 5 za **akademski savetnik** (AA-1..5),
+pisani kao **klasičan mongosh** (pokreću se u `mongosh`/Compass). Pune implementacije
+(v1 sa `$lookup`, v2 bez) i izmerena vremena: [`v1/queries/`](../v1/queries) i
+[`v2/queries/`](../v2/queries).
 
 Napomena o iskrenosti analize: PSY-2 i PSY-4 su jednokolekcijski i u v1 (nemaju join),
 pa im je dobitak u v2 mali (samo Computed/indeks); najveće ubrzanje očekujemo kod
@@ -95,20 +96,18 @@ join-teških **AA-5** (4 kolekcije), **PSY-1/PSY-3** (3) i **AA-4**.
 
 ## 7. Metodologija merenja performansi
 
-`benchmarks/benchmark.py`: za svaki upit × {v1, v2}:
-- **server vreme** i **broj pregledanih dokumenata/ključeva** preko
-  `explain` komande (`verbosity: "executionStats"`), rekurzivnim sabiranjem
-  `totalDocsExamined`/`totalKeysExamined` kroz sve faze (jer `$lookup` ima ugnježdene
-  pod-explain-e);
-- **wall-clock** vreme: 1 warm-up + medijana od 3 izvršavanja (smanjenje šuma);
-- `allowDiskUse: true` na svim upitima (veliki `$group`/`$lookup`/`$facet` prelaze 100 MB).
+Za svaki upit × {v1, v2} mereno je preko `explain("executionStats")` u `mongosh`-u:
+- **server vreme** (`executionTimeMillis`) i **broj pregledanih dokumenata/ključeva**
+  (`totalDocsExamined`/`totalKeysExamined`, sabrano kroz sve faze — `$lookup` ima
+  ugnježdene pod-explain-e);
+- uzeta je **medijana od 3 izvršavanja** (uz prethodni „warm-up", radi smanjenja šuma);
+- `allowDiskUse: true` na svim upitima (veliki `$group`/`$lookup` prelaze 100 MB).
 
-U v1 očekujemo `keys_examined = 0` (COLLSCAN), u v2 IXSCAN i znatno manji
-`docs_examined` za filtrirajuće upite.
+Izmerene vrednosti su zabeležene u `benchmarks/results.csv`. U v1 je `keys_examined = 0`
+(COLLSCAN), a u v2 filtrirajući upiti koriste IXSCAN (`keys_examined > 0`) uz znatno manji
+`docs_examined`.
 
 ## 8. Rezultati performansi (uporedna analiza)
-
-> _Popunjava se nakon pokretanja `benchmark.py` i `make_charts.py`._
 
 ![Vreme izvršavanja v1 vs v2](../charts/vrijeme_izvrsavanja.png)
 ![Broj pregledanih dokumenata v1 vs v2](../charts/broj_dokumenata.png)
@@ -129,7 +128,7 @@ Izmereno (server vreme iz `executionStats`, medijana od 3; `docs` = pregledani d
 | PSY-2 | digital_behavior (0) | 379 | 442 | 0,86× | 500.000 | 500.000 |
 | PSY-4 | wellbeing (0) | 278 | 410 | 0,68× | 500.000 | 500.000 |
 
-Sve cifre se generišu u `benchmarks/results.csv`; grafici u `charts/` (`make_charts.py`).
+Cifre su zabeležene u `benchmarks/results.csv`; grafici se generišu iz njega (`charts/make_charts.py`).
 
 **Analiza:** ubrzanje u v2 dolazi od tri izvora: (1) **eliminacije `$lookup` join-ova**
 (najizraženije kod AA-5), (2) **prekomputovanih `derived` polja** (nema argmax/baketiranja
@@ -146,8 +145,8 @@ denormalizacija je ciljana optimizacija za join-teške upite, a ne univerzalni d
 ## 9. Vizualizacija u Metabase-u
 
 Rezultati upita materijalizovani su u `results_*` kolekcije
-(`metabase/write_results.py`) i prikazani na dashboard-u. Uputstvo i predlog kartica:
-[`metabase/SETUP.md`](../metabase/SETUP.md).
+(`metabase/write_results.js`, pokreće se kroz `mongosh`) i prikazani na dashboard-u.
+Uputstvo i predlog kartica: [`metabase/SETUP.md`](../metabase/SETUP.md).
 
 ## 10. Zaključak
 

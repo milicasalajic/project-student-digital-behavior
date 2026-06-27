@@ -42,15 +42,17 @@ vrednosti (npr. 6.262 praznih `brain_rot_level`) → `null` (ne forsira se kateg
 ## Struktura projekta
 
 ```
-common/      deljeni kod: config, schema (tipovi/podela), derived (Computed polja)
-queries/     svih 10 upita (psiholog + savetnik), parametrizovani po verziji (v1/v2)
-v1/          INICIJALNA normalizovana šema (sbp-v1): scripts/load_v1.py, schema/, queries/
-v2/          OPTIMIZOVANA denormalizovana šema (sbp-v2): build_v2.py, indexes, schema/, queries/
-benchmarks/  benchmark.py -> results.csv
+common/      deljeni kod za unos: config, schema (tipovi/podela), derived (Computed polja)
+v1/          INICIJALNA normalizovana šema (sbp-v1): scripts/load_v1.py, schema/, queries/ (mongosh upiti u .md)
+v2/          OPTIMIZOVANA denormalizovana šema (sbp-v2): scripts/build_v2.py + indexes, schema/, queries/ (mongosh)
+benchmarks/  results.csv (izmerena vremena preko explain executionStats)
 charts/      make_charts.py -> dijagrami (vreme, dokumenti, ubrzanje)
-metabase/    write_results.py + SETUP.md (vizualizacija rezultata)
-docs/        izvestaj.md (+ prezentacija)
+metabase/    write_results.js + SETUP.md (vizualizacija rezultata)
+docs/        izvestaj.md, prezentacija.md
 ```
+
+> Upiti se pišu i pokreću kao **klasičan mongosh** (u `mongosh`/Compass), a ne kroz Python —
+> Python (pymongo) se koristi samo za **unos i izgradnju šema**. Vidi `v1/queries/` i `v2/queries/`.
 
 ## Pokretanje (ceo tok)
 
@@ -63,9 +65,9 @@ python -m v1.scripts.load_v1         # -> sbp-v1 (6 normalizovanih kolekcija)
 python -m v2.scripts.build_v2        # -> sbp-v2 (denormalizovano + Computed polja)
 python -m v2.scripts.indexes         # indeksi na sbp-v2.students
 
-python -m benchmarks.benchmark       # -> benchmarks/results.csv
-python -m charts.make_charts         # -> charts/*.png
-python -m metabase.write_results     # -> results_* kolekcije (za Metabase)
+# Upiti se pokreću ručno u mongosh/Compass (v1/queries, v2/queries); vremena su u benchmarks/results.csv
+python -m charts.make_charts         # -> charts/*.png (iz results.csv)
+docker exec -i sbp_mongodb mongosh sbp-v2 < metabase/write_results.js   # -> results_* (za Metabase)
 ```
 Skraćeno: `make all` ili `./run.sh`.
 
@@ -79,8 +81,8 @@ Skraćeno: `make all` ili `./run.sh`.
 
 ## Upiti (10)
 
-5 za ulogu **studentski psiholog** + 5 za **akademski savetnik**.
-Implementacije i rezultati: [`v1/queries/`](v1/queries) i [`v2/queries/`](v2/queries).
+5 za ulogu **studentski psiholog** + 5 za **akademski savetnik**, pisani kao klasičan mongosh.
+Implementacije i izmerena vremena: [`v1/queries/`](v1/queries) i [`v2/queries/`](v2/queries).
 
 ## Performanse (uporedna analiza)
 

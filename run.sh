@@ -22,11 +22,12 @@ $PY -m v2.scripts.build_v2
 echo "==> 5/7 Kreiranje indeksa na sbp-v2"
 $PY -m v2.scripts.indexes
 
-echo "==> 6/7 Merenje performansi + dijagrami"
-$PY -m benchmarks.benchmark
+echo "==> 6/7 Dijagrami uporedne analize (iz benchmarks/results.csv)"
 $PY -m charts.make_charts
 
 echo "==> 7/7 Materijalizacija rezultata za Metabase"
-$PY -m metabase.write_results
+docker exec -i sbp_mongodb mongosh sbp-v2 < metabase/write_results.js
 
-echo "Gotovo. Metabase: http://localhost:3000 (vidi metabase/SETUP.md)"
+echo "Gotovo."
+echo "Upiti: pokreni iz v1/queries i v2/queries u mongosh/Compass."
+echo "Metabase: http://localhost:3000 (vidi metabase/SETUP.md)"

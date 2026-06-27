@@ -23,9 +23,9 @@ Admin settings → **Databases** → **Add database** → tip **MongoDB**:
 Nakon dodavanja sačekati da Metabase odradi *sync* šeme.
 
 ## 3. Materijalizovani rezultati
-Pre pravljenja grafikona pokrenuti:
+Pre pravljenja grafikona pokrenuti (mongosh):
 ```bash
-python -m metabase.write_results
+docker exec -i sbp_mongodb mongosh sbp-v2 < metabase/write_results.js
 ```
 Time se rezultati svih 10 upita upisuju u sitne kolekcije:
 `results_psi_q1..q5` i `results_sav_q1..q5` (u bazi `sbp-v2`).
