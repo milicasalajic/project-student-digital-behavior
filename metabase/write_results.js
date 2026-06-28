@@ -49,7 +49,8 @@ db.students.aggregate([
   { $group: { _id: { pol: "$gender", podrucje: "$urban_rural" }, ukupno: { $sum: 1 },
       visokorizicni: { $sum: { $cond: ["$derived.addiction_high_risk", 1, 0] } },
       suma_stres_hr: { $sum: { $cond: ["$derived.addiction_high_risk", "$stress_level", 0] } } } },
-  { $addFields: { procenat_visokorizicnih: { $multiply: [{ $divide: ["$visokorizicni", "$ukupno"] }, 100] },
+  { $addFields: { pol: "$_id.pol", podrucje: "$_id.podrucje",
+      procenat_visokorizicnih: { $multiply: [{ $divide: ["$visokorizicni", "$ukupno"] }, 100] },
       prosek_stres_visokorizicni: { $cond: [{ $gt: ["$visokorizicni", 0] }, { $divide: ["$suma_stres_hr", "$visokorizicni"] }, null] } } },
   { $project: { suma_stres_hr: 0 } }, { $sort: { procenat_visokorizicnih: -1 } }, { $out: "results_sav_q2" }], O);
 
@@ -73,7 +74,8 @@ db.students.aggregate([
       broj_sa_rizikom: { $sum: { $cond: ["$derived.has_academic_risk", 1, 0] } },
       prosek_stres: { $avg: "$stress_level" }, prosek_akademski_rizik: { $avg: "$academic_risk_score" },
       prosek_prisustvo: { $avg: "$class_attendance_rate" }, prosek_motivacija: { $avg: "$academic_motivation" } } },
-  { $addFields: { procenat_sa_rizikom: { $multiply: [{ $divide: ["$broj_sa_rizikom", "$broj_studenata"] }, 100] } } },
+  { $addFields: { razvoj: "$_id.razvoj", prihod: "$_id.prihod",
+      procenat_sa_rizikom: { $multiply: [{ $divide: ["$broj_sa_rizikom", "$broj_studenata"] }, 100] } } },
   { $sort: { procenat_sa_rizikom: -1 } }, { $out: "results_sav_q5" }], O);
 
 print("Materijalizovano 10 results_* kolekcija u sbp-v2.");

@@ -148,8 +148,44 @@ optimizacija za join-teške i filtrirajuće upite, a ne univerzalni dobitak.
 ## 9. Vizualizacija u Metabase-u
 
 Rezultati upita materijalizovani su u `results_*` kolekcije
-(`metabase/write_results.js`, pokreće se kroz `mongosh`) i prikazani na dashboard-u.
-Uputstvo i predlog kartica: [`metabase/SETUP.md`](../metabase/SETUP.md).
+(`metabase/write_results.js`, pokreće se kroz `mongosh`) i prikazani na dashboard-u
+**„Analiza digitalnog ponašanja studenata"**. Metabase ne pokreće teške agregacije nad
+500k dokumenata, već čita sitne prekomputovane `results_*` kolekcije. Uputstvo za
+povezivanje i predlog kartica: [`metabase/SETUP.md`](../metabase/SETUP.md).
+
+### 9.1. Studentski psiholog (PSY)
+
+**Mentalno zdravlje po uzrastu** — prosečna depresija/anksioznost/stres po starosnim grupama.
+![PSY-1](../metabase/screenshots/psi_q1.png)
+
+**Dominantan tip sadržaja** — broj studenata i prosečan brain-rot indeks po tipu sadržaja.
+![PSY-2](../metabase/screenshots/psi_q2.png)
+
+**Profil studenata sa >6h na mrežama** — prosečan san, pažnja i produktivnost (agregat populacije).
+![PSY-3](../metabase/screenshots/psi_q3.png)
+
+**Wellbeing vs sajber-nasilje** — wellbeing i mentalno zdravlje kod izloženih i neizloženih.
+![PSY-4](../metabase/screenshots/psi_q4.png)
+
+**Profil visokorizičnih** — udeo dominantno-kratkog-videa i kasno-noćnog korišćenja.
+![PSY-5](../metabase/screenshots/psi_q5.png)
+
+### 9.2. Akademski savetnik (AA)
+
+**Studenti po dnevnim satima na mrežama** — broj, procenat i prosečna produktivnost po opsezima.
+![AA-1](../metabase/screenshots/sav_q1.png)
+
+**Visok rizik po polu i području** — procenat visokorizičnih (pol × urbano/ruralno).
+![AA-2](../metabase/screenshots/sav_q2.png)
+
+**Iznad-prosečan akademski rizik** — sati učenja, produktivnost i sati na mrežama (agregat).
+![AA-3](../metabase/screenshots/sav_q3.png)
+
+**Nivo digitalnog sagorevanja** — broj studenata i udeo sa akademskim rizikom po nivou.
+![AA-4](../metabase/screenshots/sav_q4.png)
+
+**Rizik po razvoju zemlje i prihodu** — procenat sa akademskim rizikom (razvoj × prihod).
+![AA-5](../metabase/screenshots/sav_q5.png)
 
 ## 10. Zaključak
 
