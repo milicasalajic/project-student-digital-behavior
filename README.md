@@ -90,7 +90,7 @@ Skraćeno: `make all` ili `./run.sh`.
 1. Starosne grupe (15-17, 18-20, 21-23, 24-25) → prosečna depresivnost, anksioznost, stres, akademski rizik.
 2. Dominantan tip digitalnog sadržaja → broj studenata i prosečan brain rot indeks.
 3. Studenti sa >6h dnevno na mrežama → prosečan san, raspon pažnje, produktivnost.
-4. Izloženost sajber nasilju → broj, prosečan wellbeing, depresivnost, anksioznost, stres.
+4. Izloženost sajber nasilju i nivo brain rot-a → broj, prosečan wellbeing, depresivnost, anksioznost, stres.
 5. Visoka digitalna zavisnost (>18.04) + nizak wellbeing (<50.06) uz umereno korišćenje (≤4.20h) → broj, dominantan kratki video, kasno noću.
 
 **Akademski savetnik (AA):**
