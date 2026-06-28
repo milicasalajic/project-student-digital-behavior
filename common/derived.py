@@ -1,11 +1,7 @@
 """Computed pattern: izvedena polja koja se računaju JEDNOM pri unosu u v2.
-
-Time se iz upita uklanja računanje po dokumentu (argmax dominantnog sadržaja,
-baketiranje, poređenje sesije i pažnje), što je srž optimizacije.
-Pragovi su izvedeni iz stvarne raspodele podataka (percentili).
 """
 
-# Polja sadržaja u prioritetnom redosledu (za tie-break kod dominantnog tipa).
+
 CONTENT_FIELDS = [
     ("education_content_hours", "educational"),
     ("short_video_hours", "short_video"),

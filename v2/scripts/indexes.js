@@ -8,7 +8,7 @@ const c = db.students;
 c.createIndex({ "derived.age_group": 1 });                                      // PSY-1
 c.createIndex({ "derived.dominant_content_type": 1, "brain_rot_index": -1 });   // PSY-2
 c.createIndex({ "derived.social_gt6": 1 });                                     // PSY-3
-c.createIndex({ "cyberbullying_exposure": 1 });                                 // PSY-4
+c.createIndex({  "brain_rot_level": 1, "cyberbullying_exposure": 1});                                 // PSY-4
 c.createIndex({ "digital_addiction_score": 1, "wellbeing_index": 1, "social_media_hours": 1 }); // PSY-5
 c.createIndex({ "derived.social_media_band": 1 });                              // AA-1
 c.createIndex({ "derived.addiction_high_risk": 1, "gender": 1, "urban_rural": 1 }); // AA-2

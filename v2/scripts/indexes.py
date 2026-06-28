@@ -9,7 +9,6 @@ from pymongo import MongoClient
 
 from common.config import DB_V2, MONGO_URI
 
-# (ključevi, komentar -> koji upit ubrzava)
 INDEXES = [
     ([("derived.age_group", 1)], "PSY-1: grupisanje po starosnim grupama"),
     ([("derived.dominant_content_type", 1), ("brain_rot_index", -1)], "PSY-2: grupa + sort"),

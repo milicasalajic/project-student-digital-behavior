@@ -24,7 +24,7 @@ from common.config import BATCH_SIZE, CSV_PATH, DB_V2, MONGO_URI, TOTAL_ROWS
 from common.derived import derive
 from common.schema import coerce
 
-# Subset pattern: kolone koje NE ulaze u vruću kolekciju (nisu u 10 upita).
+# Subset pattern: kolone koje nisu u 10 upita
 SUBSET_OMIT = {
     "poverty_rate_percent", "internet_infrastructure_index", "average_internet_speed_mbps",
     "ads_viewed_per_day", "ads_clicked_per_week", "impulse_purchase_score",

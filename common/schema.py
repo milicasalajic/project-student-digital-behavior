@@ -5,11 +5,10 @@ eksplicitan (bez oslanjanja na inferenciju), a prazne vrednosti (npr. 6.262 praz
 `brain_rot_level`) postaju None umesto da budu prinudno svrstane u neku kategoriju.
 """
 
-# --- Tipovi kolona ---------------------------------------------------------
+#Tipovi kolona 
 
 INT_COLS = {"student_id", "age", "late_night_score"}
 
-# kolone "Yes"/"No" -> bool (True ako je vrednost jednaka markeru)
 BOOL_COLS = {"cyberbullying_exposure": "Yes", "adult_content_exposure": "Yes"}
 
 STR_COLS = {
@@ -48,8 +47,6 @@ def coerce(col, raw):
     # string
     return raw if raw != "" else None
 
-
-# --- Podela na v1 (normalizovane) kolekcije --------------------------------
 
 # Dimenziona tabela: ključ je `country`, vrednosti zavise funkcionalno od zemlje.
 COUNTRY_DIM_COLS = [

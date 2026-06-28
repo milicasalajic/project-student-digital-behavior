@@ -1,58 +1,85 @@
-# v2 — Optimizovana DENORMALIZOVANA šema (`sbp-v2`)
+# v2 — Denormalizovana šema baze
 
-Jedna kolekcija **`students`** (500k) sa svim relevantnim poljima u jednom dokumentu,
-poddokumentom `derived` (prekomputovane vrednosti) i indeksima. Nema više `$lookup`-a.
+U drugoj verziji baza je napravljena denormalizovano. Za razliku od prve verzije, gde su podaci bili podeljeni u više kolekcija, ovde se podaci potrebni za upite čuvaju u jednoj kolekciji `students`.
 
-## Primer dokumenta
+Cilj ove verzije je da se smanji broj spajanja između kolekcija i da se upiti izvršavaju brže. U prvoj verziji su složeniji upiti morali da koriste `$lookup`, dok se u ovoj verziji većina potrebnih podataka već nalazi u istom dokumentu.
+
+Kolekcija `students` sadrži oko 500.000 dokumenata. U okviru jednog dokumenta nalaze se osnovni podaci o studentu, podaci o digitalnom ponašanju, akademski podaci i podaci o wellbeing-u. Takođe je dodato i polje `development_level`, koje je u prvoj verziji bilo deo kolekcije `countries`.
+
+Pored osnovnih polja, dokument sadrži i poddokument `derived`. U njemu se čuvaju vrednosti koje su izvedene iz postojećih podataka i koje se često koriste u upitima. Te vrednosti se računaju prilikom izgradnje baze, kako ne bi morale ponovo da se računaju svaki put kada se upit pokrene.
+
+Primer dokumenta:
+
 ```json
-{ "_id": 1, "country": "Qatar", "development_level": "Developing",
-  "age": 21, "gender": "Male", "urban_rural": "Rural", "family_income_level": "High",
-  "social_media_hours": 1.10, "average_session_length_minutes": 16.06,
-  "attention_span_minutes": 57.55, "late_night_usage": "Sometimes",
-  "education_content_hours": 0.24, "short_video_hours": 0.46,
-  "brain_rot_index": 5.87, "digital_addiction_score": 8.18, "wellbeing_index": 66.66,
-  "stress_level": 4.26, "anxiety_score": 3.19, "depression_score": 1.41,
-  "academic_risk_score": 0.0, "class_attendance_rate": 95.48, "academic_motivation": 7.18,
+{
+  "_id": 1,
+  "country": "Qatar",
+  "development_level": "Developing",
+  "age": 21,
+  "gender": "Male",
+  "urban_rural": "Rural",
+  "family_income_level": "High",
+  "social_media_hours": 1.1,
+  "average_session_length_minutes": 16.06,
+  "attention_span_minutes": 57.55,
+  "late_night_usage": "Sometimes",
+  "education_content_hours": 0.24,
+  "short_video_hours": 0.46,
+  "brain_rot_index": 5.87,
+  "digital_addiction_score": 8.18,
+  "wellbeing_index": 66.66,
+  "stress_level": 4.26,
+  "anxiety_score": 3.19,
+  "depression_score": 1.41,
+  "academic_risk_score": 0.0,
+  "class_attendance_rate": 95.48,
+  "academic_motivation": 7.18,
   "cyberbullying_exposure": false,
   "derived": {
-    "age_group": "21-23", "dominant_content_type": "educational",
-    "is_short_video_dominant": false, "social_media_band": "<2h", "social_gt6": false,
-    "is_late_night": false, "session_exceeds_attention": false,
-    "digital_burnout_level": "Nizak", "addiction_high_risk": false, "has_academic_risk": false
+    "age_group": "21-23",
+    "dominant_content_type": "educational",
+    "is_short_video_dominant": false,
+    "social_media_band": "<2h",
+    "social_gt6": false,
+    "is_late_night": false,
+    "session_exceeds_attention": false,
+    "digital_burnout_level": "Nizak",
+    "addiction_high_risk": false,
+    "has_academic_risk": false
   },
-  "schema_version": 2 }
+  "schema_version": 2
+}
 ```
 
-## Izvedena (Computed) polja
-| Polje | Pravilo |
-|---|---|
-| `age_group` | 15-17 / 18-20 / 21-23 / 24-25 |
-| `dominant_content_type` | argmax(education/short_video/entertainment/news _content_hours) → educational/short_video/entertainment/informative |
-| `is_short_video_dominant` | bool |
-| `social_media_band` | <2h / 2-4h / 4-6h / >6h |
-| `social_gt6` | social_media_hours > 6 |
-| `is_late_night` | late_night_usage ∈ {Often, Always} |
-| `session_exceeds_attention` | average_session_length_minutes > attention_span_minutes |
-| `digital_burnout_level` | iz `brain_rot_index` (percentili): Nizak <12.57 / Umeren <25.09 / Visok <34.77 / Težak ≥34.77 |
-| `addiction_high_risk` | digital_addiction_score ≥ 25 |
-| `has_academic_risk` | academic_risk_score > 0 |
+U `derived` delu se nalaze polja kao što su starosna grupa, dominantan tip sadržaja, oznaka da li student koristi društvene mreže više od 6 sati, da li koristi uređaje kasno noću i da li postoji akademski rizik.
 
-## Indeksi
-Vidi [`../scripts/indexes.py`](../scripts/indexes.py) / [`indexes.js`](../scripts/indexes.js)
-— po jedan indeks za grupisanje/filtriranje svakog upita (npr. `{derived.age_group:1}`,
-`{digital_addiction_score:1, wellbeing_index:1, social_media_hours:1}`,
-`{development_level:1, family_income_level:1}`).
+U ovoj verziji nisu prebačena sva polja iz prve verzije. Ekonomska polja i neka polja o internet infrastrukturi nisu korišćena u analiziranim upitima, pa nisu uključena u glavnu kolekciju. Na taj način dokument ostaje jednostavniji i sadrži samo podatke koji su potrebni za upite koji se mere.
 
-## Primenjeni MongoDB design paterni
-| Pattern | Primena |
-|---|---|
-| **Computed** | poddokument `derived` (sve izvedene vrednosti računate jednom pri unosu) |
-| **Extended Reference** | `development_level` denormalizovan iz `countries` → nema join-a za AA-5 |
-| **Schema Versioning** | `sbp-v1` → `sbp-v2`, polje `schema_version` |
-| **Subset** | ekonomska polja i nekorišćene infrastrukturne kolone izostavljene iz vruće kolekcije |
-| **Attribute** *(opciono)* | 4 *_content_hours mogu se modelovati kao niz `content:[{type,hours}]` |
-| **Approximation** *(lagano)* | percentilni pragovi i totali kao prekomputovane konstante |
-| **Bucket** *(konceptualno)* | nema vremenske serije po studentu; baketiranje je analitičko (Computed) + `results_*` |
-| Polymorphic / Tree / Document Versioning / Outlier | **N/A** — homogeni dokumenti, bez hijerarhije, statički snimak, ujednačena veličina (obrazloženo u izveštaju) |
+Za ovu verziju dodati su i indeksi nad poljima koja se često koriste za filtriranje i grupisanje. Indeksi se kreiraju posebnom skriptom.
 
-Izgradnja: [`../scripts/`](../scripts/README.md) · Upiti: [`../milica`](../milica) · [`../ivan`](../ivan)
+Izgradnja baze pokreće se komandom:
+
+```bash
+python -m v2.scripts.build_v2
+```
+
+Kreiranje indeksa pokreće se komandom:
+
+```bash
+python -m v2.scripts.indexes
+```
+
+Postoji i alternativni način izgradnje baze direktno kroz MongoDB, pomoću skripte `transform_v1_to_v2.js`. Taj pristup koristi `$lookup`, `$addFields` i `$merge`, ali je osnovni način za izgradnju ove verzije Python skripta `build_v2.py`.
+
+Skripte se nalaze u direktorijumu:
+
+```text
+../scripts/
+```
+
+Upiti se nalaze u direktorijumima:
+
+```text
+../milica
+../ivan
+```
