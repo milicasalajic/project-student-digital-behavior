@@ -2,7 +2,7 @@
 
 Kod upita:
 
-~~~
+```
 db.students.aggregate([
   { $lookup: { from: "wellbeing", localField: "_id", foreignField: "_id", as: "w" } },
   { $unwind: "$w" },
@@ -20,9 +20,16 @@ db.students.aggregate([
       prosek_anksioznost: { $avg: "$w.anxiety_score" },
       prosek_stres: { $avg: "$w.stress_level" },
       prosek_akademski_rizik: { $avg: "$a.academic_risk_score" } } },
+  { $project: {
+      _id: 1,
+      broj_studenata: 1,
+      prosek_depresija: { $round: ["$prosek_depresija", 2] },
+      prosek_anksioznost: { $round: ["$prosek_anksioznost", 2] },
+      prosek_stres: { $round: ["$prosek_stres", 2] },
+      prosek_akademski_rizik: { $round: ["$prosek_akademski_rizik", 2] } } },
   { $sort: { _id: 1 } }
 ], { allowDiskUse: true })
-~~~
+```
 
 Brzina izvršavanja: 10256 ms
 

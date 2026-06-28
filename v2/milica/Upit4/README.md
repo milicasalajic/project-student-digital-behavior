@@ -4,13 +4,8 @@ Kod upita:
 
 ```
 db.students.aggregate([
-  {
-    $match: {
-      brain_rot_level: { $ne: null }
-    }
-  },
-  {
-    $group: {
+  { $match: { brain_rot_level: { $ne: null } } },
+  { $group: {
       _id: {
         cyberbullying_exposure: "$cyberbullying_exposure",
         brain_rot_level: "$brain_rot_level"
@@ -19,11 +14,8 @@ db.students.aggregate([
       prosek_wellbeing: { $avg: "$wellbeing_index" },
       prosek_depresija: { $avg: "$depression_score" },
       prosek_anksioznost: { $avg: "$anxiety_score" },
-      prosek_stres: { $avg: "$stress_level" }
-    }
-  },
-  {
-    $project: {
+      prosek_stres: { $avg: "$stress_level" } } },
+  { $project: {
       _id: 0,
       cyberbullying_exposure: "$_id.cyberbullying_exposure",
       brain_rot_level: "$_id.brain_rot_level",
@@ -31,14 +23,8 @@ db.students.aggregate([
       prosek_wellbeing: { $round: ["$prosek_wellbeing", 2] },
       prosek_depresija: { $round: ["$prosek_depresija", 2] },
       prosek_anksioznost: { $round: ["$prosek_anksioznost", 2] },
-      prosek_stres: { $round: ["$prosek_stres", 2] }
-    }
-  },
-  {
-    $sort: {
-      prosek_wellbeing: 1
-    }
-  }
+      prosek_stres: { $round: ["$prosek_stres", 2] } } },
+  { $sort: { prosek_wellbeing: 1 } }
 ], { allowDiskUse: true })
 ```
 
