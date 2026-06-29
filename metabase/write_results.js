@@ -1,6 +1,5 @@
 // Materijalizacija rezultata 10 upita u rezultat-kolekcije (za Metabase).
 // Pokretanje:  docker exec -i sbp_mongodb mongosh sbp-v2 < metabase/write_results.js
-// Metabase grafikuje sitne results_* kolekcije umesto da pokreće agregacije.
 
 const db = db.getSiblingDB("sbp-v2");
 const O = { allowDiskUse: true };
@@ -24,10 +23,18 @@ db.students.aggregate([
   { $out: "results_psi_q3" }], O);
 
 db.students.aggregate([
-  { $group: { _id: "$cyberbullying_exposure", broj_studenata: { $sum: 1 },
-      prosek_wellbeing: { $avg: "$wellbeing_index" }, prosek_depresija: { $avg: "$depression_score" },
-      prosek_anksioznost: { $avg: "$anxiety_score" }, prosek_stres: { $avg: "$stress_level" } } },
-  { $sort: { prosek_wellbeing: 1 } }, { $out: "results_psi_q4" }], O);
+  { $match: { brain_rot_level: { $ne: null } } },
+  { $group: {
+      _id: {
+        cyberbullying_exposure: "$cyberbullying_exposure", brain_rot_level: "$brain_rot_level"},
+      broj_studenata: { $sum: 1 }, prosek_wellbeing: { $avg: "$wellbeing_index" }, prosek_depresija: { $avg: "$depression_score" },
+      prosek_anksioznost: { $avg: "$anxiety_score" },prosek_stres: { $avg: "$stress_level" } } },
+  { $project: {_id: 0, cyberbullying_exposure: "$_id.cyberbullying_exposure", brain_rot_level: "$_id.brain_rot_level",
+      broj_studenata: 1, prosek_wellbeing: { $round: ["$prosek_wellbeing", 2] },  prosek_depresija: { $round: ["$prosek_depresija", 2] },
+      prosek_anksioznost: { $round: ["$prosek_anksioznost", 2] }, prosek_stres: { $round: ["$prosek_stres", 2] } } },
+  { $sort: { prosek_wellbeing: 1 } },
+  { $out: "results_psi_q4" }
+], O);
 
 db.students.aggregate([
   { $match: { digital_addiction_score: { $gt: 18.04 }, wellbeing_index: { $lt: 50.06 }, social_media_hours: { $lte: 4.20 } } },

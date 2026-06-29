@@ -70,16 +70,3 @@ python -m v2.scripts.indexes
 ```
 
 Postoji i alternativni način izgradnje baze direktno kroz MongoDB, pomoću skripte `transform_v1_to_v2.js`. Taj pristup koristi `$lookup`, `$addFields` i `$merge`, ali je osnovni način za izgradnju ove verzije Python skripta `build_v2.py`.
-
-Skripte se nalaze u direktorijumu:
-
-```text
-../scripts/
-```
-
-Upiti se nalaze u direktorijumima:
-
-```text
-../milica
-../ivan
-```

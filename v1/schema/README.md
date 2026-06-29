@@ -40,20 +40,3 @@ Primer dokumenta iz kolekcije `countries`:
   "average_internet_speed_mbps": 27.19
 }
 ```
-
-Sekundarni indeksi nisu dodavani u ovoj verziji. Korišćeni su samo podrazumevani indeksi nad `_id` poljem. Zbog toga se filtriranje po drugim poljima uglavnom izvršava skeniranjem cele kolekcije.
-
-Kolekcija `economic` postoji u ovoj verziji zato što pripada originalnoj strukturi podataka, ali se ne koristi u analiziranim upitima. Zbog toga se u drugoj verziji baze ta polja ne prebacuju u glavnu kolekciju.
-
-Skripte za unos podataka nalaze se u direktorijumu:
-
-```text
-../scripts/
-```
-
-Upiti se nalaze u direktorijumima:
-
-```text
-../milica
-../ivan
-```

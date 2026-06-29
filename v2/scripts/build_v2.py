@@ -1,19 +1,4 @@
 #!/usr/bin/env python3
-"""Gradi OPTIMIZOVANU denormalizovanu šemu `sbp-v2` (jedna kolekcija `students`).
-
-Primenjeni paterni:
-  - Computed: poddokument `derived` (računat u Python-u, jednom po studentu)
-  - Extended Reference: `development_level` denormalizovan u svaki dokument
-    (nema više $lookup-a ka countries kolekciji)
-  - Subset: ekonomska polja i nekorišćene country-infrastrukturne kolone se
-    izostavljaju iz vruće kolekcije (manji radni skup)
-  - Schema Versioning: polje `schema_version: 2`
-
-Build se radi ponovo iz CSV-a (Computed polja se lakše i pouzdanije računaju u
-Python-u nego u aggregation pipeline-u). Alternativa u Mongo-u: transform_v1_to_v2.js
-
-Pokretanje:  python -m v2.scripts.build_v2   [--no-drop]
-"""
 import argparse
 import csv
 

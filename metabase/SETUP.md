@@ -1,45 +1,65 @@
-# Metabase — povezivanje i dashboard
+# Metabase
 
-Metabase se pokreće zajedno sa MongoDB-om (`docker compose up -d`) i dostupan je na
-**http://localhost:3000**.
+Metabase se koristi za vizualizaciju rezultata upita.
 
-## 1. Inicijalno podešavanje
-1. Otvoriti `http://localhost:3000` i kreirati admin nalog (prvi put).
+Pokreće se zajedno sa MongoDB bazom komandom:
 
-## 2. Povezivanje MongoDB baze
-Admin settings → **Databases** → **Add database** → tip **MongoDB**:
+```bash
+docker compose up -d
+```
 
-| Polje | Vrednost |
-|---|---|
-| Display name | `sbp-v2` |
-| Host | **`mongodb`** ⚠️ (ime servisa iz docker-compose, NE `localhost`) |
-| Port | `27017` |
-| Database name | `sbp-v2` |
-| Authentication | bez (prazno) |
+Nakon pokretanja dostupan je na adresi:
 
-> Napomena: unutar Metabase kontejnera `localhost` je sam Metabase. Kontejneri se
-> vide preko imena servisa na Docker mreži, pa je host `mongodb`.
+```text
+http://localhost:3000
+```
 
-Nakon dodavanja sačekati da Metabase odradi *sync* šeme.
+Pri prvom pokretanju potrebno je napraviti admin nalog.
 
-## 3. Materijalizovani rezultati
-Pre pravljenja grafikona pokrenuti (mongosh):
+## Povezivanje baze
+
+U Metabase-u se dodaje MongoDB baza `sbp-v2`.
+
+Podešavanja za povezivanje su:
+
+```text
+Database type: MongoDB
+Display name: sbp-v2
+Host: mongodb
+Port: 27017
+Database name: sbp-v2
+Authentication: bez autentifikacije
+```
+
+Host je `mongodb`, zato što se Metabase i MongoDB pokreću kao Docker kontejneri.
+
+Nakon povezivanja baze potrebno je pokrenuti sinhronizaciju šeme.
+
+## Priprema podataka za grafikone
+
+Pre pravljenja grafikona pokreće se komanda:
+
 ```bash
 docker exec -i sbp_mongodb mongosh sbp-v2 < metabase/write_results.js
 ```
-Time se rezultati svih 10 upita upisuju u sitne kolekcije:
-`results_psi_q1..q5` i `results_sav_q1..q5` (u bazi `sbp-v2`).
-Zatim u Metabase-u: Admin → Databases → `sbp-v2` → **Sync schema now**.
 
-## 4. Predlog kartica za dashboard "Analiza digitalnog ponašanja studenata"
-| Kartica | Kolekcija | Tip | Dimenzija → Mera |
-|---|---|---|---|
-| Mentalno zdravlje po uzrastu | `results_psi_q1` | bar | `_id` (uzrast) → prosek depresija/anksioznost/stres |
-| Dominantan tip sadržaja | `results_psi_q2` | pie + bar | `_id` → broj_studenata, prosek_brain_rot |
-| Wellbeing vs sajber-nasilje | `results_psi_q4` | bar | `_id` → prosek_wellbeing |
-| Studenti po satima na mrežama | `results_sav_q1` | bar | `_id` (opseg) → broj_studenata, procenat |
-| Visok rizik po polu/području | `results_sav_q2` | bar/heat | `_id.pol`,`_id.podrucje` → procenat_visokorizicnih |
-| Rizik po razvoju × prihodu | `results_sav_q5` | bar | `_id` → procenat_sa_rizikom |
+Ova skripta izvršava upite nad bazom `sbp-v2` i rezultate upisuje u pomoćne kolekcije:
 
-Sastaviti kartice u jedan dashboard i sačuvati screenshot u
-`metabase/screenshots/dashboard.png` (za izveštaj).
+```text
+results_psi_q1 ... results_psi_q5
+results_sav_q1 ... results_sav_q5
+```
+
+Metabase zatim koristi ove kolekcije za prikaz grafikona.
+
+## Dashboard
+
+U Metabase-u je napravljen dashboard za prikaz rezultata upita.
+
+Dashboard prikazuje rezultate upita za psihologa i akademskog savetnika, kao što su mentalno zdravlje po starosnim grupama, dominantan tip digitalnog sadržaja, wellbeing prema sajber nasilju i brain rot nivou, kao i akademski rizik po različitim grupama studenata.
+
+Screenshot dashboard-a čuva se u folderu:
+
+```text
+metabase/screenshots/dashboard.png
+```
