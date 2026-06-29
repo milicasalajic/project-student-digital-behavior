@@ -100,8 +100,6 @@ Skraćeno: `make all` ili `./run.sh`.
 4. Sesija duža od koncentracije, po nivou digitalnog sagorevanja → broj, rizik≠0, kasno noću, kratki video.
 5. Razvijenost države × prihod porodice → broj, % sa akademskim rizikom, stres, akademski rizik, prisustvo, motivacija.
 
-Implementacije i izmerena vremena, **po jedan folder na upit** (kao u primeru Andrija/Vuk):
-[`v1/milica`](v1/milica) · [`v1/ivan`](v1/ivan) · [`v2/milica`](v2/milica) · [`v2/ivan`](v2/ivan).
 
 ## Performanse (uporedna analiza)
 
