@@ -1,11 +1,10 @@
-"""Centralna konfiguracija (učitava se iz .env ako postoji, inače podrazumevane vrednosti)."""
 import os
 from pathlib import Path
 
 try:
     from dotenv import load_dotenv
     load_dotenv()
-except ImportError:  # dotenv je opcioni; radimo i bez njega
+except ImportError:
     pass
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -18,4 +17,4 @@ _default_csv = ROOT / "data" / "global_student_digital_behavior_dataset.csv"
 CSV_PATH = os.getenv("CSV_PATH", str(_default_csv))
 
 BATCH_SIZE = int(os.getenv("BATCH_SIZE", "5000"))
-TOTAL_ROWS = 500_000  # za tqdm progres
+TOTAL_ROWS = 500_000

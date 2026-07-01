@@ -1,7 +1,3 @@
-"""Computed pattern: izvedena polja koja se računaju JEDNOM pri unosu u v2.
-"""
-
-
 CONTENT_FIELDS = [
     ("education_content_hours", "educational"),
     ("short_video_hours", "short_video"),
@@ -35,17 +31,15 @@ def social_media_band(h):
 
 
 def dominant_content_type(doc):
-    """Argmax od 4 *_content_hours; tie-break po prioritetu (edu > short_video > ...)."""
     best_label, best_val = None, None
     for field, label in CONTENT_FIELDS:
         v = doc.get(field) or 0.0
-        if best_val is None or v > best_val:  # strict > čuva raniji (prioritetniji) na izjednačenju
+        if best_val is None or v > best_val:
             best_val, best_label = v, label
     return best_label
 
 
 def digital_burnout_level(brain_rot_index):
-    """Nivo digitalnog sagorevanja iz brain_rot_index, percentili p25/p75/p95."""
     if brain_rot_index is None:
         return None
     if brain_rot_index < 12.57:
@@ -58,7 +52,6 @@ def digital_burnout_level(brain_rot_index):
 
 
 def derive(doc):
-    """Vraća poddokument `derived` sa svim Computed poljima za jedan (tipizovan) red."""
     dom = dominant_content_type(doc)
     session = doc.get("average_session_length_minutes")
     attention = doc.get("attention_span_minutes")

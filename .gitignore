@@ -1,23 +1,14 @@
-# Python virtual environment
 .venv/
 
-# Python cache
 __pycache__/
 *.pyc
 
-# Dataset files
 data/*
 !data/.gitkeep
 
-# Environment files
 .env
 
-# Generisani raw explain podaci (results.csv se KOMITUJE kao dokaz)
-benchmarks/results.json
-
-# Metabase lokalna baza
 metabase/metabase.db*
 
-# OS files
 .DS_Store
 Thumbs.db

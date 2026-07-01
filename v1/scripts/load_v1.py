@@ -1,12 +1,3 @@
-#!/usr/bin/env python3
-"""Unos CSV-a u INICIJALNU normalizovanu šemu `sbp-v1` (6 kolekcija).
-
-Streaming preko csv.DictReader (konstantna memorija nad 319 MB), batch unos
-preko bulk_write(InsertOne, ordered=False). Bez sekundarnih indeksa — v1 je
-namerno "netjunovan" baseline za merenje uskih grla.
-
-Pokretanje:  python -m v1.scripts.load_v1   [--no-drop]
-"""
 import argparse
 import csv
 
@@ -23,7 +14,7 @@ def main(drop=True):
         client.drop_database(DB_V1)
     db = client[DB_V1]
 
-    countries = {}  # country -> dim dokument (dedupe u memoriji, ~50)
+    countries = {}
     batches = {name: [] for name in V1_COLLECTIONS}
 
     def flush(name):
@@ -60,6 +51,6 @@ def main(drop=True):
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("--no-drop", action="store_true", help="ne briši bazu pre unosa")
+    ap.add_argument("--no-drop", action="store_true")
     args = ap.parse_args()
     main(drop=not args.no_drop)

@@ -1,12 +1,3 @@
-"""Definicija kolona iz CSV-a, tipizacija i podela na normalizovane (v1) kolekcije.
-
-48 kolona skupa `global_student_digital_behavior_dataset.csv`. Tip svake kolone je
-eksplicitan (bez oslanjanja na inferenciju), a prazne vrednosti (npr. 6.262 praznih
-`brain_rot_level`) postaju None umesto da budu prinudno svrstane u neku kategoriju.
-"""
-
-#Tipovi kolona 
-
 INT_COLS = {"student_id", "age", "late_night_score"}
 
 BOOL_COLS = {"cyberbullying_exposure": "Yes", "adult_content_exposure": "Yes"}
@@ -32,11 +23,6 @@ FLOAT_COLS = {
 
 
 def coerce(col, raw):
-    """Pretvara sirovu CSV vrednost (str) u odgovarajući tip.
-
-    Prazan string -> None (BSON null), čime se korektno tretiraju prazne vrednosti
-    (npr. brain_rot_level). NaN se nikada ne upisuje (poison za $avg/$group).
-    """
     raw = (raw or "").strip()
     if col in INT_COLS:
         return int(raw) if raw != "" else None
@@ -44,17 +30,14 @@ def coerce(col, raw):
         return float(raw) if raw != "" else None
     if col in BOOL_COLS:
         return raw == BOOL_COLS[col]
-    # string
     return raw if raw != "" else None
 
 
-# Dimenziona tabela: ključ je `country`, vrednosti zavise funkcionalno od zemlje.
 COUNTRY_DIM_COLS = [
     "development_level", "poverty_rate_percent",
     "internet_infrastructure_index", "average_internet_speed_mbps",
 ]
 
-# Polja po kolekciji (bez _id=student_id; `country` je FK ka countries._id).
 V1_COLLECTIONS = {
     "students": [
         "country", "age", "gender", "urban_rural", "family_income_level",
@@ -83,7 +66,6 @@ V1_COLLECTIONS = {
     ],
 }
 
-# Sve kolone (za sanity-proveru pri unosu).
 ALL_COLUMNS = (
     ["student_id"] + COUNTRY_DIM_COLS
     + [c for cols in V1_COLLECTIONS.values() for c in cols]
